@@ -1,0 +1,25 @@
+{
+    "projectType": "library",
+    "sourceRoot": "libs/client/src",
+    "prefix": "client",
+    "targets": {
+        "test": {
+            "executor": "@nrwl/jest:jest",
+            "outputs": ["coverage/libs/client"],
+            "options": {
+                "jestConfig": "libs/client/jest.config.ts",
+                "passWithNoTests": true
+            }
+        },
+        "lint": {
+            "executor": "@nrwl/linter:eslint",
+            "options": {
+                "lintFilePatterns": [
+                    "libs/client/**/*.ts",
+                    "libs/client/**/*.html"
+                ]
+            }
+        }
+    },
+    "tags": []
+}

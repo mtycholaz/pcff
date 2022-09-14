@@ -16,6 +16,7 @@
         "skipDefaultLibCheck": true,
         "baseUrl": ".",
         "paths": {
+            "@pcff/client": ["libs/client/src/index.ts"],
             "@pcff/data": ["libs/data/src/index.ts"],
             "@pcff/data/*": ["libs/data/src/lib/*"],
         }

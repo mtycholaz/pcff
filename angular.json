@@ -1,8 +1,8 @@
 {
-  "$schema": "./node_modules/nx/schemas/workspace-schema.json",
-  "version": 2,
-  "projects": {
-    "pcff-app": "apps/pcff-app",
-    "pcff-app-e2e": "apps/pcff-app-e2e"
-  }
+    "$schema": "./node_modules/nx/schemas/workspace-schema.json",
+    "version": 2,
+    "projects": {
+        "pcff-app": "apps/pcff-app",
+        "pcff-app-e2e": "apps/pcff-app-e2e"
+    }
 }

@@ -15,7 +15,10 @@
         "skipLibCheck": true,
         "skipDefaultLibCheck": true,
         "baseUrl": ".",
-        "paths": {}
+        "paths": {
+            "@pcff/data": ["libs/data/src/index.ts"],
+            "@pcff/data/*": ["libs/data/src/lib/*"],
+        }
     },
     "exclude": ["node_modules", "tmp"]
 }

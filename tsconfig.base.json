@@ -2,6 +2,8 @@
     "compileOnSave": false,
     "compilerOptions": {
         "rootDir": ".",
+        "strict": false,
+        "strictPropertyInitialization": false,
         "forceConsistentCasingInFileNames": true,
         "sourceMap": true,
         "declaration": false,
@@ -18,7 +20,7 @@
         "paths": {
             "@pcff/client": ["libs/client/src/index.ts"],
             "@pcff/data": ["libs/data/src/index.ts"],
-            "@pcff/data/*": ["libs/data/src/lib/*"],
+            "@pcff/data/*": ["libs/data/src/lib/*"]
         }
     },
     "exclude": ["node_modules", "tmp"]

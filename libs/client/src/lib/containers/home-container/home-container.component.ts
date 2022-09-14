@@ -1,8 +1,11 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Select } from '@ngxs/store';
+import { Observable } from 'rxjs';
+import { HomeState } from '../../state/home.state';
 
 @Component({
     selector: 'client-home-container',
-    template: ` <client-home></client-home> `,
+    template: ` <client-home [message]="message$ | async"></client-home> `,
     styles: [
         `
             :host {
@@ -12,4 +15,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
     ],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomeContainerComponent {}
+export class HomeContainerComponent {
+    @Select(HomeState.getMessage())
+    message$: Observable<string>;
+}

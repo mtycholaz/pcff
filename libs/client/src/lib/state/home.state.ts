@@ -4,6 +4,8 @@ import { EmitterAction, Receiver } from '@ngxs-labs/emitter';
 import { createSelector, State, StateContext, Store } from '@ngxs/store';
 
 interface StateModel {
+    message: string;
+
     isLoading: boolean;
     isSaving: boolean;
     errors: Record<string, unknown> | null;
@@ -12,6 +14,8 @@ interface StateModel {
 @State<StateModel>({
     name: 'home',
     defaults: {
+        message: 'Hello World!',
+
         isLoading: false,
         isSaving: false,
         errors: null
@@ -39,6 +43,17 @@ export class HomeState {
     static setIsLoading({ patchState }: StateContext<StateModel>, action: EmitterAction<boolean>) {
         patchState({
             isLoading: action.payload,
+        });
+    }
+
+    static getMessage() {
+        return createSelector([HomeState], (state: StateModel) => state.message);
+    }
+
+    @Receiver()
+    static setMessage({ patchState }: StateContext<StateModel>, action: EmitterAction<string>) {
+        patchState({
+            message: action.payload,
         });
     }
 

@@ -5,6 +5,7 @@
         "client": "libs/client",
         "data": "libs/data",
         "pcff-app": "apps/pcff-app",
-        "pcff-app-e2e": "apps/pcff-app-e2e"
+        "pcff-app-e2e": "apps/pcff-app-e2e",
+        "shared": "libs/shared"
     }
 }

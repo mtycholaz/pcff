@@ -20,7 +20,9 @@
         "paths": {
             "@pcff/client": ["libs/client/src/index.ts"],
             "@pcff/data": ["libs/data/src/index.ts"],
-            "@pcff/data/*": ["libs/data/src/lib/*"]
+            "@pcff/data/*": ["libs/data/src/lib/*"],
+            "@pcff/shared": ["libs/shared/src/index.ts"],
+            "@pcff/shared/*": ["libs/shared/src/lib/*"]
         }
     },
     "exclude": ["node_modules", "tmp"]

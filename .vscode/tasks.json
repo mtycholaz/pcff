@@ -1,0 +1,14 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+        {
+            "type": "npm",
+            "script": "start:pcff",
+            "problemMatcher": [
+                "$webpack-builder"
+            ],
+            "label": "npm: start:pcff",
+            "detail": "ng serve pcff-app --disableHostCheck --hmr --verbose"
+        }
+    ]
+}

@@ -1,55 +1,56 @@
+import { HttpErrorResponse } from "@angular/common/http";
 
 
-export function isHttpError(model: any): model is HttpErrorResponse {
+export function isHttpError(model: unknown): model is HttpErrorResponse {
     //return model instanceof HttpErrorResponse; // doesn't work because it's referenced from a separate npm library
     return model?.constructor?.name === 'HttpErrorResponse';
 }
 
-export function isObject(model: any): model is object {
+export function isObject(model: unknown): model is object {
     return getType(model) === 'object';
 }
 
-export function isFunction(model: any): model is Function {
+export function isFunction(model: unknown): model is typeof Function {
     return getType(model) === 'function';
 }
 
-export function isError(model: any): model is Error {
+export function isError(model: unknown): model is Error {
     return getType(model) === 'error';
 }
 
-export function isString(model: any): model is string {
+export function isString(model: unknown): model is string {
     return getType(model) === 'string';
 }
 
-export function isBoolean(model: any): model is string {
+export function isBoolean(model: unknown): model is string {
     return getType(model) === 'boolean';
 }
 
-export function isFile(model: any): model is File {
+export function isFile(model: unknown): model is File {
     return getType(model) === 'file';
 }
 
-export function isArray<T>(model: any): model is Array<T> {
+export function isArray<T>(model: unknown): model is Array<T> {
     return getType(model) === 'array';
 }
 
-export function isNumber(model: any): model is number {
+export function isNumber(model: unknown): model is number {
     return getType(model) === 'number';
 }
 
-export function isDate(model: any): model is Date {
+export function isDate(model: unknown): model is Date {
     return getType(model) === 'date';
 }
 
-export function isUint8Array(model: any): model is Uint8Array {
+export function isUint8Array(model: unknown): model is Uint8Array {
     return getType(model) === 'uint8array';
 }
 
-export function isBlob(model: any): model is Blob {
+export function isBlob(model: unknown): model is Blob {
     return getType(model) === 'blob';
 }
 
-export function isNullOrUndefined(value: any): boolean {
+export function isNullOrUndefined(value: unknown): boolean {
     return value === null || value === undefined;
 }
 
@@ -57,7 +58,7 @@ export function isNullOrEmpty(value: string): boolean {
     return isNullOrUndefined(value) || value === '';
 }
 
-export function getType(model: any): string {
+export function getType(model: unknown): string {
     const type = {}.toString.call(model);
 
     switch (type) {

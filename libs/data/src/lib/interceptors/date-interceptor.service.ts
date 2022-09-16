@@ -1,16 +1,27 @@
-import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse } from '@angular/common/http';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {
+    HttpEvent,
+    HttpHandler,
+    HttpInterceptor,
+    HttpRequest,
+    HttpResponse,
+} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
-import { isArray, isDate, isObject } from '@pcff/shared/util';
+import { isArray, isDate, isObject, isString, isNullOrUndefined } from '@pcff/shared/util';
 
 @Injectable()
 export class DateInterceptor implements HttpInterceptor {
-    static readonly ISO_8601: RegExp = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?(([+-]\d\d:\d\d)|Z)?$/;
+    static readonly ISO_8601: RegExp =
+        /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?(([+-]\d\d:\d\d)|Z)?$/;
 
-    intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    intercept(
+        req: HttpRequest<unknown>,
+        next: HttpHandler
+    ): Observable<HttpEvent<unknown>> {
         if (req.method === 'POST') {
             req = req.clone({
                 body: this.convertToIso8601(req.body),
@@ -18,16 +29,16 @@ export class DateInterceptor implements HttpInterceptor {
         }
 
         return next.handle(req).pipe(
-            tap((event: HttpEvent<any>) => {
+            tap((event: HttpEvent<unknown>) => {
                 if (event instanceof HttpResponse) {
                     const body = event.body;
-                    this.convertToDate(body);
+                    this.convertToDate(body as Record<string, unknown>);
                 }
-            }),
+            })
         );
     }
 
-    convertToIso8601(body: any): any {
+    convertToIso8601(body: unknown): unknown {
         if (body === null || body === undefined) {
             return body;
         }
@@ -58,30 +69,26 @@ export class DateInterceptor implements HttpInterceptor {
         return clone;
     }
 
-    convertToDate(body: any): any {
-        if (body === null || body === undefined) {
-            return body;
-        }
-
-        if (typeof body !== 'object') {
-            return body;
+    convertToDate(body: Record<string, unknown>): void {
+        if (body === null || body === undefined || typeof body !== 'object') {
+            return;
         }
 
         for (const key of Object.keys(body)) {
             const value = body[key];
             if (this.isIso8601(value)) {
-                body[key] = new Date(value);
-            } else if (typeof value === 'object') {
-                this.convertToDate(value);
+                body[key] = new Date(value as string);
+            } else if (isObject(value)) {
+                this.convertToDate(value as Record<string, unknown>);
             }
         }
     }
 
-    isIso8601(value: any): boolean {
-        if (value === null || value === undefined) {
-            return false;
+    isIso8601(value: unknown): boolean {
+        if (isString(value)) {
+            return DateInterceptor.ISO_8601.test(value);
         }
 
-        return DateInterceptor.ISO_8601.test(value);
+        return false;
     }
 }

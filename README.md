@@ -208,36 +208,19 @@ The project is created using Angular CLI and the local DEV server will run at ht
 
 ![app Folder](.readme/app_folder.png)
 
--   Core Module
+-   Client Library
 
-    -   Used to instantiate the app and load some core functionality
-    -   Contains important single use components/classes, e.g. AppComponent or global header component if applicable
-    -   Imported once in AppModule
-    -   Can be used to export any third party module required in AppModule, to keep AppModule lean
+    -   Contains components, containers, & state used to manage the client feature module
+    -   Imported once in the pcff-app AppModule
 
--   Shared Module
+-   Shared Library
 
-    -   Contains code that will be used across your app and Feature Modules, e.g. global pipes or global button component.
+    -   Contains shared code that will be used across your app and feature modules, e.g. global pipes or global button component.
     -   Shared Module should be used mostly in Feature Modules
-    -   DO NOT import the Shared Module into AppModule
-
--   Material Module
-
-    -   Contains all Angular Material modules used in the app
-    -   The purpose is to avoid redundant imports of Angular Material module in Feature Modules and Core Module
 
 -   Feature Modules
 
-    -   auth
     -   client
-    -   tms-clerk
-    -   transcriber
-    -   …
-
--   `app-routing.module.ts`
-
-    -   Config app routing and lazy load children routes
-
 
 #### <a name='References'></a>References
 
@@ -249,8 +232,8 @@ The project is created using Angular CLI and the local DEV server will run at ht
 
 -   `containers` folder - Container components
 
-    -   Subscribe to state changes from @ngrx store and provide data to Presentation Component
-    -   Handle event from Presentation Component and dispatch actions to `@ngrx` store
+    -   Subscribe to state changes from @ngxs store and provide data to Presentation Component
+    -   Handle event from Presentation Component and dispatch actions to `@ngxs` store
     -   The HTML template of Container Components is composed by Presentational Components with no HTML code or dependency to 3rd party UI components
 
 -   `components` folder - Presentation Component
@@ -261,25 +244,20 @@ The project is created using Angular CLI and the local DEV server will run at ht
 
 -   `actions` folder
 
-    -   Contains `@ngrx` action creators
+    -   Contains `@ngxs` action creators
 
--   `effects` folder
+-   `state` folder
 
-    -   Contains `@ngrx` effects
+    -   Contains `@ngxs` state specific to the module
 
 -   `models` folder
 
-    -   Contains domain models
-
--   `reducers` folder
-
-    -   Contains `@ngrx` reducers
-    -   Define state(s) for Feature Module
-    -   There could be more than one reducers for a Feature Module
+    -   Contains models specific to the module
 
 -   `services` folder
+    -   Contains services specific to the module
     -   Services are mostly responsible for making HTTP calls to backend
-    -   May include other services, e.g. `auth-guard`, if applicable
+    -   Services are consumed by the state
 
 #### <a name='References:'></a>References:
 
@@ -289,33 +267,20 @@ The project is created using Angular CLI and the local DEV server will run at ht
 
 ### <a name='FileNamingConvention'></a>File Naming Convention
 
-| Type                                    | Convention                        | Class Name       |
-| --------------------------------------- | --------------------------------- | ---------------- |
-| Angular Module                          | .module.ts                        | \*Module         |
-| Angular Routing Module                  | `<module-name>`-routing.module.ts | \*RoutingModule  |
-| Presentation Component                  | \*.component.ts                   | \*Component      |
-| Container Component (Page)              | \*-page.component.ts              | \*PageComponent  |
-| Container Component (Modal)             | \*-modal.component.ts             | \*ModalComponent |
-| Directive                               | \*.directive.ts                   | \*Directive      |
-| Pipe                                    | \*.pipe.ts                        | \*Pipe           |
-| Action/Action Creator                   | \*.action.ts                      | N/A              |
-| Effect                                  | \*.effects.ts                     | \*Effect         |
-| Root Reducer (in App or Feature Module) | index.ts                          | N/A              |
-| Children Reducer                        | \*.reducer.ts                     | N/A              |
-| Service                                 | \*.service.ts                     | \*Service        |
-| Unit Test                               | `<target-file-name>`.spec.ts      | N/A              |
+| Type                                    | Convention                        | Class Name            |
+| --------------------------------------- | --------------------------------- | ----------------      |
+| Angular Module                          | .module.ts                        | \*Module              |
+| Angular Routing Module                  | `<module-name>`-routing.ts        | \*RoutingModule       |
+| Presentation Component                  | \*.component.ts                   | \*component           |
+| Container Component                     | \*-container.component.ts         | \*ContainerComponent  |
+| Container Component (Modal)             | \*-modal.component.ts             | \*ModalComponent      |
+| Directive                               | \*.directive.ts                   | \*Directive           |
+| Pipe                                    | \*.pipe.ts                        | \*Pipe                |
+| Action/Action Creator                   | \*.action.ts                      | N/A                   |
+| State                                   | \*.state  .ts                     | \*State               |
+| Service                                 | \*.service.ts                     | \*Service             |
+| Unit Test                               | `<target-file-name>`.spec.ts      | N/A                   |
 
-### <a name='ActionTypeConvention'></a>Action Type Convention
-
-`[<ModuleName>/<ChildrenReducerName>] <ActionName>`
-
-For example,
-
-```typescript
-export const getTranscriptOrdersByUserId = createAction(
-    '[Client] Get Transcript Orders By User Id',
-);
-```
 
 ### <a name='CodingNamingConvention'></a>Coding Naming Convention
 
@@ -340,12 +305,14 @@ const weeksInAYear = 52;
 
 export const DAYS_IN_YEAR = 365;
 
-export const logout = createAction('[Auth] Logout');
+export const logout = 'Logout';
 
-isPending$: Observable<boolean> = this._store.pipe(select(fromAuth.isLoginPagePending));
+isPending$: Observable<boolean> = this.store.select(HomeState.isLoginPending());
 ```
 
 #### <a name='Class'></a>Class
+
+The only reasons to use a class is to check if a variable is of that instance using the `instanceof` operator, or to create injectable Angular components/services. It's encouraged that you avoid classes unless necessary and instead export your functions. This will allow webpack to perform any tree-shaking to remove unused code. It's also a good practice for modular design patterns.
 
 | Type                             | Naming Standard                      | Sample                          |
 | -------------------------------- | ------------------------------------ | ------------------------------- |

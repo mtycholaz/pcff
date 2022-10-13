@@ -1,0 +1,49 @@
+name: "Get branch name"
+
+outputs:
+  branch-name:
+    value: ${{ steps.step3.outputs.branch-name }}
+
+runs:
+  using: composite
+  steps:
+    - id: step1
+      shell: bash
+      name: Is branch push?
+      run: |
+        echo "${{ github.event.ref }}"
+        raw="${{ github.event.ref }}"
+        branch=$(echo ${raw/refs\/heads\/} | tr -cd '[a-zA-Z0-9-]')
+        echo "Branch name is $branch."
+        echo "branch=$branch" >> $GITHUB_ENV
+
+    - id: step2
+      shell: bash
+      name: Is tag push?
+      if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        echo "${{ github.event.base_ref }}"
+        raw="${{ github.event.base_ref }}"
+        branch=$(echo ${raw/refs\/heads\/} | tr -cd '[a-zA-Z0-9-]')
+        echo "Branch name is $branch."
+        echo "branch=$branch" >> $GITHUB_ENV
+
+    - id: step3
+      shell: bash
+      name: Set stack name
+      run: |
+        echo "::set-output name=branch-name::${{env.branch}}"
+    # - name: Determine branch name
+    #   id: determine-branch-name
+    #   shell: bash
+    #   run: |
+    #       raw="refs/heads/default"
+    #       if [[ '${{startsWith(github.ref, 'refs/tags/deploy')}}' ]]
+    #       then
+    #         raw="${{ github.event.base_ref }}"
+    #       else
+    #         raw="${{ github.event.ref }}"
+    #       fi
+    #       branch=$(echo ${raw/refs\/heads\/} | tr -cd '[a-zA-Z0-9-]')
+    #       echo "Branch name is $branch."
+    #       echo "::set-output name=branch-name::$branch"

@@ -1,0 +1,33 @@
+name: 'Delete web stack'
+
+inputs:
+    branch-name:
+        required: true
+    region:
+        required: true
+
+runs:
+    using: composite
+    steps:
+        - name: Setup
+          id: setup
+          shell: bash
+          run: |
+            echo ::set-output name=STACK_NAME::${{ inputs.branch-name }}-web
+
+        - name: Delete everything from S3 bucket
+          shell: bash
+          id: delete-bucket
+          run: |
+              bucket=$(aws cloudformation describe-stacks --stack-name=${{steps.setup.outputs.STACK_NAME}} --query "Stacks[*].Outputs[?OutputKey == 'BucketUrl'][].OutputValue | [0]")
+              bucket=${bucket//\"/}
+              echo "S3 bucket is $bucket"
+              aws s3 rm s3://$bucket --recursive
+
+        - name: Delete web stack
+          shell: bash
+          run: |
+              sam delete \
+                --stack-name ${{steps.setup.outputs.STACK_NAME}} \
+                --region ${{inputs.REGION}} \
+                --no-prompts

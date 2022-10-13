@@ -14,7 +14,7 @@ interface StateModel {
 @State<StateModel>({
     name: 'home',
     defaults: {
-        message: 'Hello World!',
+        message: 'Hello from the state!',
 
         isLoading: false,
         isSaving: false,

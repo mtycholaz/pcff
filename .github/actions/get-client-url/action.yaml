@@ -1,0 +1,25 @@
+name: 'Get web deployment url'
+
+inputs:
+    branch-name:
+        required: true
+    region:
+        required: true
+
+runs:
+    using: composite
+    steps:
+        - name: Setup
+          id: setup
+          shell: bash
+          run: |
+            echo ::set-output name=STACK_NAME::${{ inputs.branch-name }}-web
+
+        - name: Get cloudfront CDN url
+          shell: bash
+          id: cloudfront-url
+          run: |
+              url=$(aws cloudformation describe-stacks --stack-name=${{steps.setup.outputs.STACK_NAME}} --query "Stacks[*].Outputs[?OutputKey == 'CdnDistributionUrl'][].OutputValue | [0]")
+              url=${url//\"/}
+              echo "Cloudfront distribution url is $url"
+              echo "::set-output name=cloudfront-url::https://$url"

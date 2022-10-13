@@ -8,7 +8,8 @@
         "start": "nx serve",
         "build": "nx build",
         "test": "nx test",
-        "start:pcff": "ng serve pcff-app --disableHostCheck --hmr --verbose",
+        "start:pcff": "npx nx serve pcff-app --disableHostCheck --verbose",
+        "build:pcff": "npx nx build pcff-app --prod",
         "pretty": "prettier --write \"./**/*.{js,jsx,json,ts}\""
     },
     "private": true,

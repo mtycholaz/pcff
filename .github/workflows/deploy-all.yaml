@@ -1,0 +1,27 @@
+name: Deploy All Stacks
+
+on:
+    workflow_dispatch:
+env:
+    REGION: us-east-1
+
+jobs:
+    invoke-cloudfront-stack:
+        name: Create cloudfront stack
+        uses: ./.github/workflows/deploy-cloudfront.yml
+        secrets: inherit
+
+    invoke-client-api-stack:
+        name: Create client api stack
+        needs:
+            - invoke-cloudfront-stack
+        uses: ./.github/workflows/deploy-client-api.yaml
+        secrets: inherit
+
+    invoke-client-web-stack:
+        name: Create client web stack
+        needs:
+            - invoke-cloudfront-stack
+            - invoke-client-api-stack
+        uses: ./.github/workflows/deploy-client-web.yml
+        secrets: inherit

@@ -1,0 +1,40 @@
+name: "Get Tag vesion"
+
+inputs:
+  tag-name:
+    required: true
+
+outputs:
+  app-version-major:
+    value: ${{ steps.set-output-tag-version.outputs.app-version-major }}
+  app-version-minor:
+    value: ${{ steps.set-output-tag-version.outputs.app-version-minor }}
+
+runs:
+  using: composite
+  steps:
+    - name: Get version tag
+      uses: jungwinter/split@v2
+      id: split-tag
+      with:
+        msg: ${{ inputs.tag-name }}
+        separator: "_"
+
+    - name: Get tag major,minor version
+      uses: jungwinter/split@v2
+      id: split-tag-version
+      with:
+        msg: ${{steps.split-tag.outputs._1}}
+        separator: "."
+
+    - name: Set outputs tag major,minor version
+      env:
+        VERSION_MAJOR: ${{steps.split-tag-version.outputs._1}}
+        VERSION_MINOR: ${{steps.split-tag-version.outputs._2}}
+      id: set-output-tag-version
+      shell: bash
+      run: |
+        echo "::set-output name=app-version-major::$VERSION_MAJOR"
+        echo "::set-output name=app-version-minor::$VERSION_MINOR"
+        echo "$VERSION_MAJOR"
+        echo "$VERSION_MINOR"

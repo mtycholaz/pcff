@@ -1,0 +1,24 @@
+name: 'Delete api stack'
+
+inputs:
+    branch-name:
+        required: true
+    region:
+        required: true
+
+runs:
+    using: composite
+    steps:
+        - name: Setup
+          id: setup
+          shell: bash
+          run: |
+            echo ::set-output name=STACK_NAME::${{ inputs.branch-name }}-api
+
+        - name: Delete api stack
+          shell: bash
+          run: |
+              sam delete \
+                --stack-name ${{steps.setup.outputs.STACK_NAME}} \
+                --region ${{inputs.REGION}} \
+                --no-prompts

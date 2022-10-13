@@ -1,0 +1,89 @@
+# This is a basic workflow to help you get started with Actions
+name: Deploy Cloudfront & S3
+
+on:
+    workflow_call:
+    workflow_dispatch:
+        inputs:
+            version:
+                description: Provide a version in the format name_r.*.*.*.
+
+env:
+    SAM_TEMPLATE: apps/pcff-app/template.yaml
+
+    REGION: us-east-1
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+    setup:
+        runs-on: ubuntu-latest
+        environment:
+            name: dev
+        outputs:
+            branch-name: ${{steps.get-branch-name.outputs.branch-name}}
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@v2
+
+            - name: Determine branch name
+              uses: ./.github/actions/get-branch-name
+              id: get-branch-name
+
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        needs: [setup]
+        environment:
+            name: dev
+        permissions:
+            id-token: write
+            contents: read
+        env:
+            PIPELINE_EXECUTION_ROLE: ${{ secrets.AWS_PIPELINE_EXEC_ROLE_ARN }}
+            ARTIFACTS_BUCKET: ${{ secrets.AWS_CLOUDFORMATION_ARTIFACTS_BUCKET }}
+            WEB_STACK_NAME: ${{needs.setup.outputs.branch-name}}-web
+        steps:
+            - name: Stack Name
+              run: echo ${{env.STACK_NAME}}
+
+            - name: Check out repository
+              uses: actions/checkout@v2
+
+            #    TODO: Move these actions to the web-aws-cicd repo and use tokens to authenticate
+            #
+            #    https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-an-action-in-the-same-repository-as-the-workflow
+            #    https://docs.github.com/en/actions/creating-actions/creating-a-composite-action#prerequisites
+            #    https://docs.github.com/en/actions/security-guides/automatic-token-authentication#modifying-the-permissions-for-the-github_token
+
+            - name: Assume the pipeline user role
+              uses: aws-actions/configure-aws-credentials@v1
+              with:
+                  aws-region: ${{ env.REGION }}
+                  role-to-assume: ${{ env.PIPELINE_EXECUTION_ROLE }}
+                  role-duration-seconds: 3600
+                  role-skip-session-tagging: true
+
+            - name: Build SAM template
+              run: sam build --template ${SAM_TEMPLATE} --use-container
+
+            - name: Upload artifacts to artifact buckets
+              run: |
+                  sam package \
+                    --s3-bucket ${{env.ARTIFACTS_BUCKET}} \
+                    --region ${{env.REGION}} \
+                    --output-template-file packaged.yaml
+
+            - uses: actions/upload-artifact@v2
+              with:
+                  name: packaged.yaml
+                  path: packaged.yaml
+
+            - name: Deploy the stack
+              shell: bash
+              run: |
+                  sam deploy --stack-name ${{env.WEB_STACK_NAME}} \
+                    --template packaged.yaml \
+                    --capabilities CAPABILITY_IAM \
+                    --region ${{env.REGION}} \
+                    --s3-bucket ${{env.ARTIFACTS_BUCKET}} \
+                    --no-fail-on-empty-changeset \
+                    --role-arn ${{env.PIPELINE_EXECUTION_ROLE}}

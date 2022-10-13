@@ -1,0 +1,96 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Cloudfront distribution and S3 bucket
+
+Resources:
+    WebClientBucket:
+        Type: AWS::S3::Bucket
+        Properties:
+            BucketName: !Sub ${AWS::StackName}-pcff-public
+            AccessControl: Private
+            PublicAccessBlockConfiguration:
+                BlockPublicAcls: true
+                BlockPublicPolicy: true
+                IgnorePublicAcls: true
+                RestrictPublicBuckets: true
+
+    CloudFrontOriginIdentity:
+        Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+        Properties:
+            CloudFrontOriginAccessIdentityConfig:
+                Comment: 'origin identity'
+    WebClientPolicy:
+        Type: AWS::S3::BucketPolicy
+        Properties:
+            Bucket:
+                Ref: WebClientBucket
+            PolicyDocument:
+                Version: '2012-10-17'
+                Statement:
+                    - Effect: Allow
+                      Principal:
+                          CanonicalUser:
+                              Fn::GetAtt: [CloudFrontOriginIdentity, S3CanonicalUserId]
+                      Action: 's3:GetObject'
+                      Resource:
+                          - !Sub '${WebClientBucket.Arn}'
+                          - !Sub '${WebClientBucket.Arn}/*'
+
+    WebClientCdnCachePolicy:
+        Type: AWS::CloudFront::CachePolicy
+        Properties:
+            CachePolicyConfig:
+                DefaultTTL: 60
+                MaxTTL: 180
+                MinTTL: 60
+                Name: !Sub ${AWS::StackName}-StandardCachePolicy
+                ParametersInCacheKeyAndForwardedToOrigin:
+                    CookiesConfig:
+                        CookieBehavior: all
+                    EnableAcceptEncodingBrotli: false
+                    EnableAcceptEncodingGzip: true
+                    HeadersConfig:
+                        HeaderBehavior: none
+                    QueryStringsConfig:
+                        QueryStringBehavior: all
+
+    WebClientCdn:
+        Type: AWS::CloudFront::Distribution
+        Properties:
+            DistributionConfig:
+                Origins:
+                    - DomainName: !Sub '${WebClientBucket}.s3.amazonaws.com'
+                      Id: !Sub ${AWS::StackName}-webpage
+                      S3OriginConfig:
+                          OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginIdentity}'
+                Enabled: True
+                DefaultCacheBehavior:
+                    Compress: true
+                    TargetOriginId: !Sub ${AWS::StackName}-webpage
+                    ViewerProtocolPolicy: redirect-to-https
+                    CachePolicyId:
+                        Ref: WebClientCdnCachePolicy
+                CustomErrorResponses:
+                    - ErrorCode: 403
+                      ResponseCode: 200
+                      ResponsePagePath: /index.html
+
+                    - ErrorCode: 404
+                      ResponseCode: 200
+                      ResponsePagePath: /index.html
+
+Outputs:
+    BucketUrl:
+        Description: 'S3 bucket for web client'
+        Value:
+            Ref: WebClientBucket
+    BucketArn:
+        Description: 'S3 bucket ARN for web client'
+        Value: !GetAtt WebClientBucket.Arn
+    CdnDistributionId:
+        Description: 'Cloudfront distribution id'
+        Value:
+            Ref: WebClientCdn
+    CdnDistributionUrl:
+        Description: 'Cloudfront distribution url'
+        Value:
+            Fn::GetAtt: [WebClientCdn, DomainName]

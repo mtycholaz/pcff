@@ -39,46 +39,6 @@ Below are our core plugins:
 
 There are also many [community plugins](https://nx.dev/community) you could add.
 
-## Generate an application
-
-Run `ng g @nrwl/angular:app my-app` to generate an application.
-
-> You can use any of the plugins above to generate applications as well.
-
-When using Nx, you can create multiple applications and libraries in the same workspace.
-
-## Generate a library
-
-Run `ng g @nrwl/angular:lib my-lib` to generate a library.
-
-> You can also use any of the plugins above to generate libraries as well.
-
-Libraries are shareable across libraries and applications. They can be imported from `@pcff/mylib`.
-
-## Development server
-
-Run `ng serve my-app` for a dev server. Navigate to http://localhost:4200/. The app will automatically reload if you change any of the source files.
-
-## Code scaffolding
-
-Run `ng g component my-component --project=my-app` to generate a new component.
-
-## Build
-
-Run `ng build my-app` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
-
-## Running unit tests
-
-Run `ng test my-app` to execute the unit tests via [Jest](https://jestjs.io).
-
-Run `nx affected:test` to execute the unit tests affected by a change.
-
-## Running end-to-end tests
-
-Run `ng e2e my-app` to execute the end-to-end tests via [Cypress](https://www.cypress.io).
-
-Run `nx affected:e2e` to execute the end-to-end tests affected by a change.
-
 ## Understand your workspace
 
 Run `nx graph` to see a diagram of the dependencies of your projects.
@@ -105,12 +65,12 @@ Visit the [Nx Documentation](https://nx.dev/angular) to learn more.
     -   [Debug Unit Test](#DebugUnitTest)
 -   [Project Folder Structure](#ProjectFolderStructure)
     -   [Root Folder](#RootFolder)
-    -   [`src` Folder](#srcFolder)
-    -   [`src/app` Folder](#srcappFolder)
-    -   [Feature Module Folder](#FeatureModuleFolder)
+    -   [`libs` Folder](#libsFolder)
+    -   [Feature Library Folder](#FeatureLibraryFolder)
+-   [Generators](#generators)
+    -   [Adding New Applications/Components/Libraries/Lambdas](#addApplication)
 -   [Naming Convention](#NamingConvention)
     -   [File Naming Convention](#FileNamingConvention)
-    -   [Action Type Convention](#ActionTypeConvention)
     -   [Coding Naming Convention](#CodingNamingConvention)
         -   [Variable and Function](#VariableandFunction)
         -   [Class](#Class)
@@ -195,18 +155,22 @@ The project is created using Angular CLI and the local DEV server will run at ht
 
 ## <a name='ProjectFolderStructure'></a>Project Folder Structure
 
-### <a name='srcFolder'></a>`src` Folder
+### <a name='RootFolder'></a>`root` Folder
 
-![src Folder](.readme/src_folder.png)
+![root Folder](.readme/root_folder.png)
 
 -   `apps` folder
-    -   Contains entry point apps
+    -   Contains entry point apps and lambda functions
 -   `libs` folder
-    -   Contains NX libraries consumed by the apps
+    -   Contains NX libraries imported by the apps
+-   `dist` folder
+    -   Contains the build output of the apps
+-   `tools` folder
+    -   Contains workspace generators and other scripts
 
-### <a name='srcappFolder'></a>`src/app` Folder
+### <a name='libsFolder'></a>`libs` Folder
 
-![app Folder](.readme/app_folder.png)
+![libs Folder](.readme/libs_folder.png)
 
 -   Client Library
 
@@ -215,20 +179,16 @@ The project is created using Angular CLI and the local DEV server will run at ht
 
 -   Shared Library
 
-    -   Contains shared code that will be used across your app and feature modules, e.g. global pipes or global button component.
+    -   Contains shared code that will be used across your app and feature modules, e.g. global pipes or global UI component.
     -   Shared Module should be used mostly in Feature Modules
-
--   Feature Modules
-
-    -   client
 
 #### <a name='References'></a>References
 
 -   [Core Module vs. Shared Module](https://blog.chai-jay.com/angular-core-vs-shared-modules/)
 
-### <a name='FeatureModuleFolder'></a>Feature Module Folder
+### <a name='FeatureLibraryFolder'></a>Feature Library Folder
 
-![feature Folder](.readme/feature_folder.png)
+![feature Folder](.readme/library_1.png)
 
 -   `containers` folder - Container components
 
@@ -258,10 +218,31 @@ The project is created using Angular CLI and the local DEV server will run at ht
     -   Contains services specific to the module
     -   Services are mostly responsible for making HTTP calls to backend
     -   Services are consumed by the state
+    -   Shared services should be moved to the `shared` library
 
-#### <a name='References:'></a>References:
-
+#### <a name='References'></a>References:
 -   [Container vs Presentation Components Pattern](https://blog.angular-university.io/angular-component-design-how-to-avoid-custom-event-bubbling-and-extraneous-properties-in-the-local-component-tree/)
+
+## <a name='generators'></a>Generators
+
+The Nx workspace includes built-in and custom generators for our workspace. Generators are scripts that take inputs and scaffold our code with new components, services, state, etc.
+
+To use a generator, you can invoke the `generate` command in the Nx console. Choose from one of the built-in generators or scroll to the bottom and pick the custom `workspace-generator` options.
+
+![invoke Generators](.readme/generators_1.png)
+![select Generators](.readme/generators_2.png)
+
+### <a name='addApplication'></a>Adding New Applications/Components/Libraries/Lambdas
+
+The Nx workspace manages all applications and their dependencies. It comes with build-in generators to scaffold the correct files and to update the necessary files.
+
+Depending on the project type (web, api, or library) you want to add will depend on which generator you use.
+
+-   Web applications should use the `@nrwl/angular - application` generator
+-   Libraries should use the `@nrwl/angular - library` generator
+-   AWS Lambdas should use the `@nrwl/node - application` or `@nrwl/nest - application` generators
+-   API libraries should use the `@nrwl/node - library` or `@nrwl/nest - library` generators
+
 
 ## <a name='NamingConvention'></a>Naming Convention
 
